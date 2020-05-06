@@ -443,11 +443,13 @@ public class ZooKeeper {
                 + " sessionTimeout=" + sessionTimeout + " watcher=" + watcher);
 
         watchManager.defaultWatcher = watcher;
-
+        //包装地址
         ConnectStringParser connectStringParser = new ConnectStringParser(
                 connectString);
+        //打乱地址顺序
         HostProvider hostProvider = new StaticHostProvider(
                 connectStringParser.getServerAddresses());
+
         cnxn = new ClientCnxn(connectStringParser.getChrootPath(),
                 hostProvider, sessionTimeout, this, watchManager,
                 getClientCnxnSocket(), canBeReadOnly);

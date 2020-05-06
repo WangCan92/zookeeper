@@ -291,7 +291,7 @@ public class ZooKeeperMain {
         main.run();
     }
 
-    public ZooKeeperMain(String args[]) throws IOException, InterruptedException {
+    public  ZooKeeperMain(String args[]) throws IOException, InterruptedException {
         cl.parseOptions(args);
         System.out.println("Connecting to " + cl.getOption("server"));
         connectToZK(cl.getOption("server"));

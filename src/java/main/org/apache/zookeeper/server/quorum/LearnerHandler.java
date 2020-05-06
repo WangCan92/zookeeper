@@ -380,6 +380,7 @@ public class LearnerHandler extends ZooKeeperThread {
                 ss = new StateSummary(bbepoch.getInt(), ackEpochPacket.getZxid());
                 leader.waitForEpochAck(this.getSid(), ss);
             }
+            //获取到了最新的zxid
             peerLastZxid = ss.getLastZxid();
             
             /* the default to send to the follower */
@@ -415,6 +416,7 @@ public class LearnerHandler extends ZooKeeperThread {
                     LOG.debug("proposal size is {}", proposals.size());
                     if ((maxCommittedLog >= peerLastZxid)
                             && (minCommittedLog <= peerLastZxid)) {
+                        //同步事务日志中的数据给flowwer
                         LOG.debug("Sending proposals to follower");
 
                         // as we look through proposals, this variable keeps track of previous
@@ -457,6 +459,7 @@ public class LearnerHandler extends ZooKeeperThread {
                             }
                         }
                     } else if (peerLastZxid > maxCommittedLog) {
+                        //删除掉多了的日志
                         LOG.debug("Sending TRUNC to follower zxidToSend=0x{} updates=0x{}",
                                 Long.toHexString(maxCommittedLog),
                                 Long.toHexString(updates));
@@ -503,6 +506,7 @@ public class LearnerHandler extends ZooKeeperThread {
                         + "sent zxid of db as 0x" 
                         + Long.toHexString(zxidToSend));
                 // Dump data to peer
+                //快照同步
                 leader.zk.getZKDatabase().serializeSnapshot(oa);
                 oa.writeString("BenWasHere", "signature");
             }
@@ -511,6 +515,7 @@ public class LearnerHandler extends ZooKeeperThread {
             // Start sending packets
             new Thread() {
                 public void run() {
+                    //事务日志同步
                     Thread.currentThread().setName(
                             "Sender-" + sock.getRemoteSocketAddress());
                     try {
@@ -553,7 +558,7 @@ public class LearnerHandler extends ZooKeeperThread {
             // using the data
             //
             queuedPackets.add(new QuorumPacket(Leader.UPTODATE, -1, null, null));
-
+            //接收客户端请求
             while (true) {
                 qp = new QuorumPacket();
                 ia.readRecord(qp, "packet");
